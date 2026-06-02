@@ -1,0 +1,61 @@
+---
+import HeroBackground from './HeroBackground.astro';
+import TopBar from './TopBar.astro';
+const { topbar, logo = '/images/hero-logo.webp' } = Astro.props;
+---
+<header id="home" class="hero">
+  <HeroBackground />
+  <TopBar {...topbar} />
+
+  <div class="hero-logo-wrap">
+    <img class="hero-logo" src={logo} alt="POTTS_10K" width="1100" height="1100" fetchpriority="high" />
+  </div>
+
+  <!-- decorative downward chevron divider -->
+  <svg class="hero-divider" viewBox="0 0 60 22" aria-hidden="true">
+    <path d="M2 2 L30 18 L58 2" fill="none" stroke="#3aa0ff" stroke-width="2" />
+  </svg>
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: clamp(420px, 56vw, 660px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero-logo-wrap {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    height: 100%;
+    min-height: inherit;
+    padding: 56px 16px 26px;
+  }
+  .hero-logo {
+    width: min(82%, 760px);
+    height: auto;
+    /* drop the black backing of the logo art so it fuses with the shader */
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 0 38px rgba(30, 111, 255, 0.55));
+    animation: hero-float 7s ease-in-out infinite;
+  }
+  @keyframes hero-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero-divider {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: 60px;
+    filter: drop-shadow(0 0 8px rgba(47, 139, 255, 0.8));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-logo { animation: none; }
+  }
+</style>

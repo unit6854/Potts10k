@@ -1,0 +1,132 @@
+---
+import Icon from './Icon.astro';
+const { data } = Astro.props;
+const { heading, viewAllLabel, viewAllUrl, items = [] } = data;
+
+// Build-time fallback: if an item has no thumbnail uploaded but has a TikTok
+// URL, pull the official poster via TikTok's oEmbed endpoint. Failures fall
+// back to a bundled placeholder so the build never breaks.
+async function resolveThumb(item: any): Promise<string> {
+  if (item.thumbnail) return item.thumbnail;
+  if (item.tiktokUrl) {
+    try {
+      const r = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(item.tiktokUrl)}`);
+      if (r.ok) {
+        const j = await r.json();
+        if (j.thumbnail_url) return j.thumbnail_url;
+      }
+    } catch { /* ignore — use placeholder */ }
+  }
+  return '/images/short-1.webp';
+}
+const resolved = await Promise.all(
+  items.map(async (it: any) => ({ ...it, thumb: await resolveThumb(it) }))
+);
+---
+<section id="shorts" class="panel block">
+  <div class="head">
+    <h2 class="section-label"><Icon name="tiktok" size={17} class="ico" />{heading}</h2>
+    <a class="view-all" href={viewAllUrl} target="_blank" rel="noopener">{viewAllLabel}</a>
+  </div>
+
+  <div class="reel">
+    {resolved.map((v: any) => (
+      <a class="short" href={v.tiktokUrl} target="_blank" rel="noopener" data-clip={v.previewClip || ''}>
+        <div class="media">
+          <img class="poster" src={v.thumb} alt={v.title} loading="lazy" />
+          {v.previewClip && (
+            <video class="prev" muted loop playsinline preload="none" poster={v.thumb}>
+              <source src={v.previewClip} />
+            </video>
+          )}
+          <span class="scan" aria-hidden="true"></span>
+          {v.views && <span class="views"><Icon name="play" size={11} /> {v.views}</span>}
+          <span class="tt" aria-hidden="true"><Icon name="tiktok" size={13} /></span>
+        </div>
+        <span class="title clamp-1">{v.title}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .block { padding: 16px 18px 20px; }
+  .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+  .reel { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+
+  .short { display: block; transition: transform 0.18s; }
+  .short:hover { transform: translateY(-4px); }
+
+  .media {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid rgba(108, 196, 255, 0.3);
+    box-shadow: 0 0 16px rgba(10, 40, 100, 0.3);
+  }
+  .poster, .prev {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .poster { transition: transform 0.5s, filter 0.3s; }
+  .prev { opacity: 0; transition: opacity 0.25s; }
+  .short:hover .poster { transform: scale(1.08); filter: brightness(1.05); }
+  .short.playing .prev { opacity: 1; }
+
+  /* magical scan sweep on hover (poster-only fallback + always-on flourish) */
+  .scan {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 40%, rgba(120, 200, 255, 0.28) 50%, transparent 60%);
+    transform: translateX(-120%);
+  }
+  .short:hover .scan { animation: sweep 0.9s ease-in-out; }
+  @keyframes sweep { to { transform: translateX(120%); } }
+
+  .views {
+    position: absolute; left: 7px; top: 7px;
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 0.66rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 5px;
+    background: rgba(4, 10, 26, 0.82);
+    color: #d6ecff;
+  }
+  .tt {
+    position: absolute; right: 7px; bottom: 7px;
+    display: grid; place-items: center;
+    width: 22px; height: 22px; border-radius: 6px;
+    background: rgba(4, 10, 26, 0.82);
+    color: var(--accent-bright);
+  }
+  .title {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+
+  @media (max-width: 900px) { .reel { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 460px) { .reel { grid-template-columns: repeat(2, 1fr); } }
+</style>
+
+<script>
+  // Hover → play the muted preview clip (only if one was uploaded).
+  document.querySelectorAll<HTMLElement>('.short').forEach((el) => {
+    const vid = el.querySelector<HTMLVideoElement>('.prev');
+    if (!vid) return;
+    el.addEventListener('mouseenter', () => {
+      el.classList.add('playing');
+      vid.play().catch(() => {});
+    });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('playing');
+      vid.pause();
+      vid.currentTime = 0;
+    });
+  });
+</script>

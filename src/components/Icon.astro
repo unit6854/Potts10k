@@ -1,0 +1,46 @@
+---
+// Inline SVG icon set. Usage: <Icon name="twitch" />
+// All icons inherit currentColor so they glow with their container.
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+}
+const { name, size = 18, class: cls = '' } = Astro.props;
+
+const paths: Record<string, string> = {
+  twitch:
+    'M4 2 L2 6 v14 h5 v3 h3 l3-3 h4 l5-5 V2 Z M20 11 l-3 3 h-4 l-3 3 v-3 H6 V4 h14 Z M15 6 h-2 v5 h2 Z M11 6 H9 v5 h2 Z',
+  tiktok:
+    'M16 3 c0 2.4 1.7 4.4 4 4.9 v3.1 c-1.5 0-2.9-.4-4-1.1 v6.4 c0 3.4-2.8 6.2-6.2 6.2 S3.6 19.7 3.6 16.3 6.4 10.1 9.8 10.1 c.4 0 .8 0 1.2.1 v3.3 c-.4-.1-.8-.2-1.2-.2 -1.6 0-2.9 1.3-2.9 2.9 s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9 V3 Z',
+  youtube:
+    'M23 7.5 c-.2-1.4-1.1-2.4-2.4-2.6 C18.5 4.5 12 4.5 12 4.5 s-6.5 0-8.6.4 C2.1 5.1 1.2 6.1 1 7.5 .6 9.9 .6 12 .6 12 s0 2.1.4 4.5 c.2 1.4 1.1 2.4 2.4 2.6 2.1.4 8.6.4 8.6.4 s6.5 0 8.6-.4 c1.3-.2 2.2-1.2 2.4-2.6 .4-2.4.4-4.5.4-4.5 s0-2.1-.4-4.5 Z M9.6 15.6 V8.4 l6.2 3.6 Z',
+  discord:
+    'M20 5.3 A17 17 0 0 0 15.8 4 l-.2.4 a15 15 0 0 1 3.7 1.2 c-3.4-1.6-7.8-1.6-11.2 0 A15 15 0 0 1 11.8 4.4 L11.6 4 A17 17 0 0 0 7.4 5.3 C4.6 9.4 3.8 13.4 4.2 17.3 A17 17 0 0 0 9.3 20 l.6-1 a11 11 0 0 1-1.8-.9 l.4-.3 c3.4 1.6 7.2 1.6 10.6 0 l.4.3 a11 11 0 0 1-1.8.9 l.6 1 a17 17 0 0 0 5.1-2.7 c.5-4.5-.8-8.5-3.2-12 Z M9.7 14.8 c-.8 0-1.5-.8-1.5-1.7 s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7 Z m4.6 0 c-.8 0-1.5-.8-1.5-1.7 s.7-1.7 1.5-1.7 1.5.8 1.5 1.7-.7 1.7-1.5 1.7 Z',
+  play: 'M8 5 v14 l11-7 Z',
+  calendar:
+    'M7 2 v2 H5 a2 2 0 0 0-2 2 v13 a2 2 0 0 0 2 2 h14 a2 2 0 0 0 2-2 V6 a2 2 0 0 0-2-2 h-2 V2 h-2 v2 H9 V2 Z M5 9 h14 v10 H5 Z',
+  heart: 'M12 21 C6 16 3 12.5 3 8.8 3 6.1 5 4 7.6 4 9.2 4 10.6 4.8 12 6.3 13.4 4.8 14.8 4 16.4 4 19 4 21 6.1 21 8.8 21 12.5 18 16 12 21 Z',
+  star: 'M12 2 l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7 Z',
+  users:
+    'M16 11 a4 4 0 1 0-4-4 4 4 0 0 0 4 4 Z m-8 0 a3 3 0 1 0-3-3 3 3 0 0 0 3 3 Z m0 2 c-2.7 0-6 1.3-6 4 v2 h7 v-2 c0-1.2.5-2.3 1.3-3.2 A9 9 0 0 0 8 13 Z m8 0 c-2.7 0-6 1.3-6 4 v2 h12 v-2 c0-2.7-3.3-4-6-4 Z',
+  eye: 'M12 5 C5 5 1 12 1 12 s4 7 11 7 11-7 11-7 -4-7-11-7 Z m0 11 a4 4 0 1 1 4-4 4 4 0 0 1-4 4 Z',
+  trophy:
+    'M7 3 h10 v2 h3 v3 a4 4 0 0 1-4 4 h-.4 A6 6 0 0 1 13 15.7 V18 h3 v2 H8 v-2 h3 v-2.3 A6 6 0 0 1 7.4 12 H7 a4 4 0 0 1-4-4 V5 h4 Z M5 7 v1 a2 2 0 0 0 2 2 V7 Z m12 0 v3 a2 2 0 0 0 2-2 V7 Z',
+  chevron: 'M9 6 l6 6-6 6',
+};
+const d = paths[name] ?? '';
+const stroke = ['chevron'].includes(name);
+---
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  class={cls}
+  aria-hidden="true"
+  fill={stroke ? 'none' : 'currentColor'}
+  stroke={stroke ? 'currentColor' : 'none'}
+  stroke-width={stroke ? 2 : 0}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><path d={d} /></svg>

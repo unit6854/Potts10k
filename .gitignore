@@ -1,0 +1,23 @@
+# build output
+dist/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+# environment
+.env
+.env.production
+# astro
+.astro/
+# os / editor
+.DS_Store
+Thumbs.db
+# local screenshot artifacts
+shot-*.png
+
+# reference-only files (not part of the site; Logo.png + "Full body character.png"
+# are kept because scripts/process-assets.mjs reads them)
+site1 mock.png
+site2 mockk.png
+Potts10k.txt
+pics 1 + info/

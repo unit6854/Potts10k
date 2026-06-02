@@ -1,0 +1,58 @@
+---
+import Icon from './Icon.astro';
+const { data } = Astro.props;
+const { heading, subheading, links = [] } = data;
+---
+<section id="contact" class="panel block">
+  <h2 class="section-label">{heading}</h2>
+  <p class="sub">{subheading}</p>
+  <ul>
+    {links.map((l: any) => (
+      <li>
+        <a class={`link ${l.platform}`} href={l.url} target="_blank" rel="noopener">
+          <span class="ico"><Icon name={l.platform} size={18} /></span>
+          <span class="txt">
+            <strong>{l.label}</strong>
+            <small>{l.sub}</small>
+          </span>
+          <Icon name="chevron" size={15} class="arr" />
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .block { padding: 16px 18px 18px; }
+  .section-label { margin-bottom: 4px; }
+  .sub { margin: 0 0 14px; font-size: 0.74rem; color: var(--text-dim); }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .link {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(7, 16, 38, 0.6);
+    border: 1px solid rgba(47, 139, 255, 0.18);
+    transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .link:hover {
+    transform: translateX(3px);
+    border-color: rgba(108, 196, 255, 0.55);
+    box-shadow: 0 0 18px rgba(30, 111, 255, 0.3);
+    background: rgba(12, 28, 64, 0.7);
+  }
+  .ico {
+    flex: 0 0 auto;
+    display: grid; place-items: center;
+    width: 34px; height: 34px; border-radius: 8px;
+    background: rgba(4, 10, 26, 0.7);
+  }
+  .twitch .ico { color: #b48bff; }
+  .tiktok .ico { color: #6cc4ff; }
+  .youtube .ico { color: #ff5d5d; }
+  .discord .ico { color: #8ea1ff; }
+  .txt { display: flex; flex-direction: column; line-height: 1.15; flex: 1; }
+  .txt strong { font-family: var(--font-display); font-size: 0.78rem; letter-spacing: 0.08em; }
+  .txt small { font-size: 0.68rem; color: var(--text-dim); }
+  .arr { color: var(--text-faint); }
+</style>

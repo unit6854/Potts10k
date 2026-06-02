@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+const { data } = Astro.props;
+const { heading, rows = [], note } = data;
+---
+<section class="panel block">
+  <h2 class="section-label"><Icon name="calendar" size={17} class="ico" />{heading}</h2>
+  <ul class="rows">
+    {rows.map((r: any) => (
+      <li>
+        <span class="days">{r.days}</span>
+        <span class={`time ${/off/i.test(r.time) ? 'off' : ''}`}>{r.time}</span>
+      </li>
+    ))}
+  </ul>
+  {note && <p class="note">{note}</p>}
+</section>
+
+<style>
+  .block { padding: 16px 18px 18px; height: 100%; }
+  .section-label { margin-bottom: 14px; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .rows li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 4px;
+    border-bottom: 1px solid rgba(47, 139, 255, 0.14);
+  }
+  .rows li:last-child { border-bottom: 0; }
+  .days { font-family: var(--font-display); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; color: var(--accent-bright); }
+  .time { font-size: 0.82rem; color: #d3e8ff; }
+  .time.off { color: var(--text-faint); }
+  .note { margin: 12px 0 0; text-align: center; font-size: 0.68rem; color: var(--text-faint); }
+</style>

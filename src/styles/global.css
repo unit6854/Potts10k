@@ -1,0 +1,198 @@
+/* ============================================================
+   POTTS_10K — global design tokens, resets, shared utilities
+   ============================================================ */
+
+:root {
+  /* surfaces */
+  --bg: #02040c;
+  --bg-2: #04081502;
+  --panel: rgba(8, 17, 40, 0.62);
+  --panel-solid: #060e22;
+  --panel-inner: rgba(4, 10, 26, 0.55);
+
+  /* blue energy palette (sampled from the mock) */
+  --accent: #2f9bff;
+  --accent-bright: #6cc4ff;
+  --accent-deep: #0a4fd0;
+  --glow: #1e6fff;
+  --hero-deep: #063886;
+
+  /* text */
+  --text: #d4e9ff;
+  --text-dim: #7ea6da;
+  --text-faint: #46618c;
+
+  /* status */
+  --live: #ff3b46;
+  --magenta: #a64dff;
+
+  /* type */
+  --font-display: "Chakra Petch", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, sans-serif;
+  --font-num: "Orbitron", system-ui, sans-serif;
+
+  /* layout */
+  --maxw: 1180px;
+  --radius: 10px;
+  --gap: 18px;
+
+  /* gradient border used by panels */
+  --border-grad: linear-gradient(
+    135deg,
+    rgba(108, 196, 255, 0.75),
+    rgba(47, 139, 255, 0.12) 38%,
+    rgba(47, 139, 255, 0.12) 62%,
+    rgba(108, 196, 255, 0.6)
+  );
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Ambient page backdrop: deep navy with faint vignette + grid.
+   Cheap (CSS only); the live WebGL sits only behind the hero. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(14, 50, 110, 0.55), transparent 60%),
+    radial-gradient(100% 60% at 50% 110%, rgba(10, 40, 95, 0.35), transparent 65%),
+    var(--bg);
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(47, 139, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 139, 255, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 0%, #000 35%, transparent 80%);
+          mask-image: radial-gradient(130% 100% at 50% 0%, #000 35%, transparent 80%);
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+/* ---- shared panel (gradient border + inner glow) ---- */
+.panel {
+  position: relative;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    var(--border-grad) border-box;
+  border: 1px solid transparent;
+  box-shadow:
+    0 0 0 1px rgba(2, 8, 22, 0.6) inset,
+    0 0 28px rgba(20, 70, 160, 0.12),
+    0 0 60px rgba(10, 40, 100, 0.18) inset;
+  backdrop-filter: blur(3px);
+}
+/* corner accent ticks for the techy frame */
+.panel::before,
+.panel::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accent-bright);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.panel::before { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
+.panel::after { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+
+/* ---- section heading label ---- */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  font-size: 0.95rem;
+  margin: 0;
+}
+.section-label .ico {
+  color: var(--accent-bright);
+  filter: drop-shadow(0 0 6px rgba(47, 139, 255, 0.7));
+}
+
+.view-all {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--accent-bright);
+  border: 1px solid rgba(108, 196, 255, 0.4);
+  padding: 5px 12px;
+  border-radius: 6px;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+.view-all:hover {
+  background: rgba(47, 139, 255, 0.15);
+  box-shadow: 0 0 16px rgba(47, 139, 255, 0.35);
+}
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+.btn-primary {
+  color: #eaf5ff;
+  background: linear-gradient(180deg, #2f9bff, #0c52c8);
+  box-shadow: 0 0 18px rgba(47, 139, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-ghost {
+  color: var(--accent-bright);
+  background: rgba(10, 30, 70, 0.5);
+  border-color: rgba(108, 196, 255, 0.45);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 0 24px rgba(47, 139, 255, 0.6); }
+
+/* clamp helpers */
+.clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+}

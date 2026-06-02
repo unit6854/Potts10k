@@ -1,0 +1,19 @@
+---
+const { copyright } = Astro.props;
+---
+<footer class="foot">
+  <svg class="trident" viewBox="0 0 40 48" aria-hidden="true">
+    <path d="M20 4 v40 M20 4 l-6 8 M20 4 l6 8 M6 12 v6 a14 14 0 0 0 28 0 v-6" fill="none" stroke="#3aa0ff" stroke-width="2.4" stroke-linecap="round"/>
+  </svg>
+  <p>{copyright}</p>
+</footer>
+
+<style>
+  .foot {
+    text-align: center;
+    padding: 28px 16px 40px;
+    margin-top: 8px;
+  }
+  .trident { width: 30px; height: 36px; filter: drop-shadow(0 0 10px rgba(47, 139, 255, 0.8)); }
+  p { margin: 8px 0 0; font-family: var(--font-display); font-size: 0.66rem; letter-spacing: 0.16em; color: var(--text-faint); }
+</style>

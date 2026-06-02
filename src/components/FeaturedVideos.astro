@@ -1,0 +1,80 @@
+---
+import Icon from './Icon.astro';
+const { data } = Astro.props;
+const { heading, viewAllLabel, viewAllUrl, items = [] } = data;
+---
+<section id="videos" class="panel block">
+  <div class="head">
+    <h2 class="section-label"><Icon name="play" size={18} class="ico" />{heading}</h2>
+    <a class="view-all" href={viewAllUrl}>{viewAllLabel}</a>
+  </div>
+
+  <div class="grid">
+    {items.map((v: any) => (
+      <a class="card" href={v.url} target="_blank" rel="noopener">
+        <div class="thumb">
+          <img src={v.thumbnail} alt={v.title} loading="lazy" />
+          <span class={`plat ${v.platform}`}><Icon name={v.platform} size={13} /></span>
+          {v.duration && <span class="dur">{v.duration}</span>}
+          <span class="playover"><Icon name="play" size={22} /></span>
+        </div>
+        <div class="cap">
+          <strong class="clamp-1">{v.title}</strong>
+          {v.subtitle && <span class="sub clamp-1">{v.subtitle}</span>}
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .block { padding: 16px 18px 20px; }
+  .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .card { display: block; border-radius: 8px; overflow: hidden; transition: transform 0.18s; }
+  .card:hover { transform: translateY(-3px); }
+
+  .thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(108, 196, 255, 0.25);
+    box-shadow: 0 0 18px rgba(10, 40, 100, 0.3);
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s, filter 0.3s; }
+  .card:hover .thumb img { transform: scale(1.06); filter: brightness(1.08); }
+
+  .plat {
+    position: absolute; left: 8px; bottom: 8px;
+    display: grid; place-items: center;
+    width: 26px; height: 26px; border-radius: 6px;
+    background: rgba(4, 10, 26, 0.85);
+    color: var(--accent-bright);
+    border: 1px solid rgba(108, 196, 255, 0.4);
+  }
+  .plat.youtube { color: #ff4d4d; border-color: rgba(255, 80, 80, 0.4); }
+  .dur {
+    position: absolute; right: 8px; bottom: 8px;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 2px 7px; border-radius: 5px;
+    background: rgba(4, 10, 26, 0.85);
+    color: #cfe6ff;
+  }
+  .playover {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    color: #eaf6ff;
+    opacity: 0;
+    background: radial-gradient(circle at 50%, rgba(20, 60, 140, 0.5), rgba(2, 8, 22, 0.3));
+    transition: opacity 0.2s;
+  }
+  .card:hover .playover { opacity: 1; }
+
+  .cap { padding: 9px 2px 0; }
+  .cap strong { display: block; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.03em; }
+  .sub { display: block; font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
+
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+</style>

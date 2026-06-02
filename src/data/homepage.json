@@ -1,0 +1,122 @@
+{
+  "site": {
+    "title": "POTTS_10K",
+    "description": "POTTS_10K — gamer, content creator, and full-time streamer. Warzone, Elden Ring, Final Fantasy and more. Road to 10K.",
+    "copyright": "© 2024 POTTS_10K. All Rights Reserved."
+  },
+  "topbar": {
+    "followLabel": "FOLLOW ME",
+    "socials": [
+      { "platform": "twitch", "url": "https://twitch.tv/potts_10k" },
+      { "platform": "tiktok", "url": "https://www.tiktok.com/@potts_10k" }
+    ],
+    "username": "POTTS_10K",
+    "level": "LEVEL 10K",
+    "avatar": "/images/avatar.webp"
+  },
+  "nav": [
+    { "label": "HOME", "href": "#home" },
+    { "label": "VIDEOS", "href": "#videos" },
+    { "label": "SHORTS", "href": "#shorts" },
+    { "label": "LIVE", "href": "#live" },
+    { "label": "ABOUT", "href": "#about" },
+    { "label": "MERCH", "href": "#merch" },
+    { "label": "CONTACT", "href": "#contact" }
+  ],
+  "featured": {
+    "heading": "FEATURED VIDEOS",
+    "viewAllLabel": "VIEW ALL",
+    "viewAllUrl": "#videos",
+    "items": [
+      {
+        "thumbnail": "/images/featured-1.webp",
+        "title": "ELDEN RING",
+        "subtitle": "Shadow of the Erdtree — Full Gameplay Walkthrough",
+        "duration": "45:32",
+        "platform": "twitch",
+        "url": "https://twitch.tv/potts_10k"
+      },
+      {
+        "thumbnail": "/images/featured-2.webp",
+        "title": "CALL OF DUTY: WARZONE",
+        "subtitle": "Insane Win!",
+        "duration": "28:14",
+        "platform": "youtube",
+        "url": "https://youtube.com/@potts_10k"
+      },
+      {
+        "thumbnail": "/images/featured-3.webp",
+        "title": "FINAL FANTASY VII",
+        "subtitle": "Rebirth — Part 12",
+        "duration": "32:09",
+        "platform": "twitch",
+        "url": "https://twitch.tv/potts_10k"
+      }
+    ]
+  },
+  "shorts": {
+    "heading": "SHORTS / TIKTOK CLIPS",
+    "viewAllLabel": "VIEW ALL",
+    "viewAllUrl": "https://www.tiktok.com/@potts_10k",
+    "items": [
+      { "thumbnail": "/images/short-1.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "INSANE 1v4 CLUTCH!", "views": "1.2M" },
+      { "thumbnail": "/images/short-2.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "FUNNIEST MOMENT", "views": "850K" },
+      { "thumbnail": "/images/short-3.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "PERFECT TIMING", "views": "2.1M" },
+      { "thumbnail": "/images/short-4.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "CAN'T BELIEVE THIS...", "views": "1.5M" },
+      { "thumbnail": "/images/short-5.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "UNREAL COMEBACK!", "views": "930K" },
+      { "thumbnail": "/images/short-6.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "VICTORY ROYALE!", "views": "1.7M" }
+    ]
+  },
+  "about": {
+    "heading": "ABOUT ME",
+    "avatar": "/images/avatar.webp",
+    "body": "Hey! I'm Potts_10K — gamer, content creator, and full-time streamer. I play a wide variety of games and love bringing the community together for epic moments and good vibes!",
+    "followLabel": "FOLLOW",
+    "followUrl": "https://twitch.tv/potts_10k",
+    "subscribeLabel": "SUBSCRIBE",
+    "subscribeUrl": "https://youtube.com/@potts_10k"
+  },
+  "schedule": {
+    "heading": "STREAM SCHEDULE",
+    "rows": [
+      { "days": "MON – FRI", "time": "7:00PM – 12:00AM" },
+      { "days": "SATURDAY", "time": "12:00PM – 5:00PM" },
+      { "days": "SUNDAY", "time": "OFFLINE" }
+    ],
+    "note": "All times in your local timezone"
+  },
+  "live": {
+    "heading": "LIVE STATUS",
+    "isLive": true,
+    "liveLabel": "LIVE",
+    "platform": "Twitch",
+    "platformUrl": "https://twitch.tv/potts_10k",
+    "onLabel": "LIVE ON TWITCH",
+    "currentlyLabel": "CURRENTLY LIVE",
+    "nowPlaying": "Playing: Warzone",
+    "nowPlayingSub": "Road to 10K Wins",
+    "followersLabel": "FOLLOWERS",
+    "followers": "8.92K",
+    "goalLabel": "GOAL: 10,000",
+    "goalPercent": 89
+  },
+  "connect": {
+    "heading": "STAY CONNECTED",
+    "subheading": "Join the community!",
+    "links": [
+      { "platform": "twitch", "label": "TWITCH", "sub": "twitch.tv/potts_10k", "url": "https://twitch.tv/potts_10k" },
+      { "platform": "tiktok", "label": "TIKTOK", "sub": "@potts_10k", "url": "https://www.tiktok.com/@potts_10k" },
+      { "platform": "youtube", "label": "YOUTUBE", "sub": "Potts_10K", "url": "https://youtube.com/@potts_10k" },
+      { "platform": "discord", "label": "DISCORD", "sub": "Join the server", "url": "https://discord.gg/" }
+    ]
+  },
+  "updates": {
+    "heading": "LATEST UPDATES",
+    "items": [
+      { "platform": "twitch", "name": "Potts_10K", "text": "is now live!", "sub": "Playing Warzone", "time": "10m ago", "url": "https://twitch.tv/potts_10k" },
+      { "platform": "tiktok", "name": "Potts_10K", "text": "New TikTok Clip!", "sub": "Insane 1v4 Clutch", "time": "1h ago", "url": "https://www.tiktok.com/@potts_10k" },
+      { "platform": "youtube", "name": "Potts_10K", "text": "New Video Uploaded!", "sub": "Elden Ring Walkthrough", "time": "3h ago", "url": "https://youtube.com/@potts_10k" },
+      { "platform": "discord", "name": "Potts_10K", "text": "Join the Discord!", "sub": "Giveaways & More", "time": "1d ago", "url": "https://discord.gg/" }
+    ]
+  }
+}

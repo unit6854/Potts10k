@@ -1,0 +1,76 @@
+---
+const { items = [] } = Astro.props;
+---
+<nav class="navwrap">
+  <div class="nav container">
+    <ul>
+      {items.map((it: any, i: number) => (
+        <li>
+          <a href={it.href} class={i === 0 ? 'active' : ''}>{it.label}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .navwrap {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 10px 0 6px;
+    background: linear-gradient(180deg, rgba(2, 5, 14, 0.92), rgba(2, 5, 14, 0.55) 70%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .nav {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    background:
+      linear-gradient(rgba(6, 14, 34, 0.9), rgba(6, 14, 34, 0.9)) padding-box,
+      var(--border-grad) border-box;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    box-shadow: 0 0 22px rgba(20, 70, 160, 0.2), inset 0 0 24px rgba(8, 30, 70, 0.5);
+    /* angled ends + subtle center dip */
+    clip-path: polygon(
+      0 22%, 3% 0, 44% 0, 47% 26%, 53% 26%, 56% 0, 97% 0, 100% 22%,
+      100% 100%, 0 100%
+    );
+  }
+  ul {
+    display: flex;
+    gap: clamp(6px, 2.4vw, 34px);
+    list-style: none;
+    margin: 0;
+    padding: 14px 22px 12px;
+  }
+  a {
+    position: relative;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+    padding: 4px 2px;
+    transition: color 0.18s, text-shadow 0.18s;
+  }
+  a:hover { color: var(--accent-bright); text-shadow: 0 0 12px rgba(47, 139, 255, 0.7); }
+  a.active { color: #eaf6ff; text-shadow: 0 0 14px rgba(47, 139, 255, 0.9); }
+  a.active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-bright);
+    box-shadow: 0 0 10px 2px rgba(47, 139, 255, 0.9);
+  }
+
+  @media (max-width: 720px) {
+    .nav { clip-path: none; }
+    ul { flex-wrap: wrap; justify-content: center; gap: 10px 18px; padding: 12px; }
+  }
+</style>

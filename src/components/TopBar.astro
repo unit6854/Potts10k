@@ -1,0 +1,76 @@
+---
+import Icon from './Icon.astro';
+const { followLabel, socials = [], username, level, avatar } = Astro.props;
+---
+<div class="topbar">
+  <div class="follow">
+    <span class="lbl">{followLabel}</span>
+    <div class="socials">
+      {socials.map((s: any) => (
+        <a href={s.url} target="_blank" rel="noopener" class="soc" aria-label={s.platform}>
+          <Icon name={s.platform} size={16} />
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <a href={socials[0]?.url ?? '#'} class="profile">
+    <img src={avatar} alt={username} width="40" height="40" />
+    <span class="meta">
+      <span class="name">{username}</span>
+      <span class="lvl">{level}</span>
+    </span>
+  </a>
+</div>
+
+<style>
+  .topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px 26px;
+    max-width: var(--maxw);
+    margin: 0 auto;
+  }
+  .follow { text-align: left; }
+  .lbl {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .socials { display: flex; gap: 8px; }
+  .soc {
+    display: grid; place-items: center;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    color: var(--accent-bright);
+    background: rgba(8, 20, 48, 0.6);
+    border: 1px solid rgba(108, 196, 255, 0.35);
+    box-shadow: 0 0 12px rgba(30, 111, 255, 0.25);
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+  }
+  .soc:hover { transform: translateY(-2px); background: rgba(20, 50, 110, 0.7); box-shadow: 0 0 18px rgba(47, 139, 255, 0.6); }
+
+  .profile { display: flex; align-items: center; gap: 10px; }
+  .profile img {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(108, 196, 255, 0.6);
+    box-shadow: 0 0 14px rgba(47, 139, 255, 0.5);
+  }
+  .meta { display: flex; flex-direction: column; line-height: 1.1; }
+  .name { font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.06em; }
+  .lvl { font-size: 0.58rem; letter-spacing: 0.18em; color: var(--text-dim); }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 14px; }
+    .meta { display: none; }
+  }
+</style>

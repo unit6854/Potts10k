@@ -1,0 +1,61 @@
+---
+// Self-hosted fonts (no external requests → faster, reliable)
+import '@fontsource/chakra-petch/500.css';
+import '@fontsource/chakra-petch/600.css';
+import '@fontsource/chakra-petch/700.css';
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '@fontsource/barlow/700.css';
+import '@fontsource/orbitron/700.css';
+import '@fontsource/orbitron/900.css';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'POTTS_10K',
+  description = 'POTTS_10K — gamer, content creator, and full-time streamer.',
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#02040c" />
+
+    <!-- Open Graph / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/images/hero-logo.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+
+    <!-- Netlify Identity: lets invited users confirm + get sent to the CMS.
+         Only does anything once Identity is enabled on the Netlify site. -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" defer></script>
+    <script>
+      window.addEventListener('load', () => {
+        const id = (window as any).netlifyIdentity;
+        if (!id) return;
+        id.on('init', (user: any) => {
+          if (!user) {
+            id.on('login', () => { document.location.href = '/admin/'; });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

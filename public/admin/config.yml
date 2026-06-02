@@ -1,0 +1,191 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Where uploaded media is committed, and how it is referenced in JSON.
+media_folder: "public/images"
+public_folder: "/images"
+
+# Friendlier editor: show site name + a logo in the CMS sidebar.
+site_url: https://potts10k.com
+logo_url: /images/hero-logo.webp
+
+collections:
+  - name: "pages"
+    label: "Pages"
+    files:
+      - name: "homepage"
+        label: "Homepage"
+        file: "src/data/homepage.json"
+        format: json
+        description: "Everything on the home page. Fields below match the site exactly."
+        fields:
+          # ---------------- site ----------------
+          - label: "Site / SEO"
+            name: "site"
+            widget: "object"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Description (SEO)", name: "description", widget: "text" }
+              - { label: "Copyright", name: "copyright", widget: "string" }
+
+          # ---------------- top bar ----------------
+          - label: "Top Bar"
+            name: "topbar"
+            widget: "object"
+            fields:
+              - { label: "Follow label", name: "followLabel", widget: "string" }
+              - label: "Social icons"
+                name: "socials"
+                widget: "list"
+                fields:
+                  - label: "Platform"
+                    name: "platform"
+                    widget: "select"
+                    options: ["twitch", "tiktok", "youtube", "discord"]
+                  - { label: "URL", name: "url", widget: "string" }
+              - { label: "Username", name: "username", widget: "string" }
+              - { label: "Level", name: "level", widget: "string" }
+              - { label: "Avatar", name: "avatar", widget: "image" }
+
+          # ---------------- nav ----------------
+          - label: "Navigation"
+            name: "nav"
+            widget: "list"
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "Link", name: "href", widget: "string" }
+
+          # ---------------- featured videos ----------------
+          - label: "Featured Videos"
+            name: "featured"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "'View all' label", name: "viewAllLabel", widget: "string" }
+              - { label: "'View all' link", name: "viewAllUrl", widget: "string" }
+              - label: "Videos"
+                name: "items"
+                widget: "list"
+                fields:
+                  - { label: "Thumbnail", name: "thumbnail", widget: "image" }
+                  - { label: "Title", name: "title", widget: "string" }
+                  - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
+                  - { label: "Duration", name: "duration", widget: "string", required: false }
+                  - label: "Platform"
+                    name: "platform"
+                    widget: "select"
+                    options: ["twitch", "youtube", "tiktok"]
+                  - { label: "Link", name: "url", widget: "string" }
+
+          # ---------------- shorts / tiktok ----------------
+          - label: "Shorts / TikTok Clips"
+            name: "shorts"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "'View all' label", name: "viewAllLabel", widget: "string" }
+              - { label: "'View all' link", name: "viewAllUrl", widget: "string" }
+              - label: "Clips"
+                name: "items"
+                widget: "list"
+                summary: "{{fields.title}} — {{fields.views}}"
+                fields:
+                  - { label: "Thumbnail (leave blank to auto-fetch from TikTok)", name: "thumbnail", widget: "image", required: false }
+                  - label: "Preview clip (optional, plays on hover)"
+                    name: "previewClip"
+                    widget: "file"
+                    required: false
+                    media_library:
+                      config:
+                        # allow short video files for the hover preview
+                        allowed_extensions: ["mp4", "webm", "mov"]
+                  - { label: "TikTok link", name: "tiktokUrl", widget: "string" }
+                  - { label: "Title", name: "title", widget: "string" }
+                  - { label: "Views", name: "views", widget: "string", required: false }
+
+          # ---------------- about ----------------
+          - label: "About Me"
+            name: "about"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "Avatar", name: "avatar", widget: "image" }
+              - { label: "Body", name: "body", widget: "text" }
+              - { label: "Follow button label", name: "followLabel", widget: "string" }
+              - { label: "Follow button link", name: "followUrl", widget: "string" }
+              - { label: "Subscribe button label", name: "subscribeLabel", widget: "string" }
+              - { label: "Subscribe button link", name: "subscribeUrl", widget: "string" }
+
+          # ---------------- schedule ----------------
+          - label: "Stream Schedule"
+            name: "schedule"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - label: "Rows"
+                name: "rows"
+                widget: "list"
+                fields:
+                  - { label: "Days", name: "days", widget: "string" }
+                  - { label: "Time", name: "time", widget: "string" }
+              - { label: "Note", name: "note", widget: "string", required: false }
+
+          # ---------------- live status ----------------
+          - label: "Live Status"
+            name: "live"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "Currently live?", name: "isLive", widget: "boolean", default: true }
+              - { label: "Live badge text", name: "liveLabel", widget: "string" }
+              - { label: "Platform", name: "platform", widget: "string" }
+              - { label: "Platform link", name: "platformUrl", widget: "string" }
+              - { label: "'On' label", name: "onLabel", widget: "string" }
+              - { label: "'Currently' label", name: "currentlyLabel", widget: "string" }
+              - { label: "Now playing", name: "nowPlaying", widget: "string" }
+              - { label: "Now playing subtitle", name: "nowPlayingSub", widget: "string" }
+              - { label: "Followers label", name: "followersLabel", widget: "string" }
+              - { label: "Followers count", name: "followers", widget: "string" }
+              - { label: "Goal label", name: "goalLabel", widget: "string" }
+              - { label: "Goal progress (%)", name: "goalPercent", widget: "number", min: 0, max: 100, value_type: "int" }
+
+          # ---------------- stay connected ----------------
+          - label: "Stay Connected"
+            name: "connect"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "Subheading", name: "subheading", widget: "string" }
+              - label: "Links"
+                name: "links"
+                widget: "list"
+                fields:
+                  - label: "Platform"
+                    name: "platform"
+                    widget: "select"
+                    options: ["twitch", "tiktok", "youtube", "discord"]
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "Sub-text", name: "sub", widget: "string" }
+                  - { label: "URL", name: "url", widget: "string" }
+
+          # ---------------- latest updates ----------------
+          - label: "Latest Updates"
+            name: "updates"
+            widget: "object"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - label: "Updates"
+                name: "items"
+                widget: "list"
+                summary: "{{fields.text}} ({{fields.time}})"
+                fields:
+                  - label: "Platform"
+                    name: "platform"
+                    widget: "select"
+                    options: ["twitch", "tiktok", "youtube", "discord"]
+                  - { label: "Name", name: "name", widget: "string" }
+                  - { label: "Text", name: "text", widget: "string" }
+                  - { label: "Sub-text", name: "sub", widget: "string" }
+                  - { label: "Time", name: "time", widget: "string" }
+                  - { label: "Link", name: "url", widget: "string" }

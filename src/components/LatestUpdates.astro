@@ -1,0 +1,54 @@
+---
+import Icon from './Icon.astro';
+const { data } = Astro.props;
+const { heading, items = [] } = data;
+---
+<section class="panel block">
+  <h2 class="section-label">{heading}</h2>
+  <div class="grid">
+    {items.map((u: any) => (
+      <a class={`upd ${u.platform}`} href={u.url} target="_blank" rel="noopener">
+        <span class="ico"><Icon name={u.platform} size={16} /></span>
+        <div class="body">
+          <div class="top"><strong>{u.name}</strong><span class="time">{u.time}</span></div>
+          <span class="txt">{u.text}</span>
+          <span class="sub">{u.sub}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .block { padding: 16px 18px 20px; }
+  .section-label { margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .upd {
+    display: flex; gap: 10px;
+    padding: 12px;
+    border-radius: 9px;
+    background: rgba(7, 16, 38, 0.6);
+    border: 1px solid rgba(47, 139, 255, 0.18);
+    transition: transform 0.15s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .upd:hover { transform: translateY(-2px); border-color: rgba(108, 196, 255, 0.5); box-shadow: 0 0 18px rgba(30, 111, 255, 0.28); }
+  .ico {
+    flex: 0 0 auto;
+    display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(4, 10, 26, 0.7);
+  }
+  .twitch .ico { color: #b48bff; }
+  .tiktok .ico { color: #6cc4ff; }
+  .youtube .ico { color: #ff5d5d; }
+  .discord .ico { color: #8ea1ff; }
+  .body { display: flex; flex-direction: column; min-width: 0; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .top strong { font-family: var(--font-display); font-size: 0.74rem; letter-spacing: 0.04em; }
+  .time { font-size: 0.6rem; color: var(--text-faint); white-space: nowrap; }
+  .txt { font-size: 0.74rem; color: #cfe6ff; margin-top: 2px; }
+  .sub { font-size: 0.7rem; color: var(--text-dim); }
+
+  @media (max-width: 860px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) { .grid { grid-template-columns: 1fr; } }
+</style>
