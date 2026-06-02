@@ -1,0 +1,83 @@
+---
+// Custom blue glowing cursor: a precise dot at the pointer + a soft glow that
+// trails behind it. Only active on fine-pointer (mouse) devices; touch devices
+// keep their native behavior. pointer-events:none so it never blocks clicks.
+---
+<div id="cursor-glow" aria-hidden="true"></div>
+<div id="cursor-dot" aria-hidden="true"></div>
+
+<style>
+  @media (hover: hover) and (pointer: fine) {
+    html { cursor: none; }
+    /* keep a real caret in text fields for usability */
+    input, textarea, [contenteditable] { cursor: auto; }
+
+    #cursor-glow, #cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      will-change: transform;
+      transition: opacity 0.2s;
+    }
+    #cursor-glow {
+      width: 36px; height: 36px;
+      margin: -18px 0 0 -18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(120, 205, 255, 0.55), rgba(47, 139, 255, 0.18) 60%, transparent 72%);
+      mix-blend-mode: screen;
+      transition: width 0.16s ease, height 0.16s ease, margin 0.16s ease, opacity 0.2s;
+    }
+    #cursor-glow.big { width: 60px; height: 60px; margin: -30px 0 0 -30px; }
+    #cursor-dot {
+      width: 7px; height: 7px;
+      margin: -3.5px 0 0 -3.5px;
+      border-radius: 50%;
+      background: #e6f4ff;
+      box-shadow: 0 0 8px 2px rgba(47, 139, 255, 0.95), 0 0 18px rgba(47, 139, 255, 0.6);
+    }
+  }
+  @media not all and (hover: hover) {
+    #cursor-glow, #cursor-dot { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #cursor-glow { transition: none; }
+  }
+</style>
+
+<script>
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (fine) {
+    const glow = document.getElementById('cursor-glow')!;
+    const dot = document.getElementById('cursor-dot')!;
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let gx = mx, gy = my;
+
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate(${mx}px, ${my}px)`;
+    }, { passive: true });
+
+    // glow eases toward the pointer for a trailing feel
+    function tick() {
+      gx += (mx - gx) * 0.2;
+      gy += (my - gy) * 0.2;
+      glow.style.transform = `translate(${gx}px, ${gy}px)`;
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    // grow over interactive elements
+    const interactive = 'a, button, .tab, .short, .card, input, textarea, [role="button"]';
+    document.addEventListener('mouseover', (e) => {
+      if ((e.target as Element).closest?.(interactive)) glow.classList.add('big');
+    });
+    document.addEventListener('mouseout', (e) => {
+      if ((e.target as Element).closest?.(interactive)) glow.classList.remove('big');
+    });
+
+    // fade out when leaving the window
+    document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; dot.style.opacity = '0'; });
+    document.addEventListener('mouseenter', () => { glow.style.opacity = '1'; dot.style.opacity = '1'; });
+  }
+</script>

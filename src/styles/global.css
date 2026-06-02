@@ -50,6 +50,24 @@
 
 html { scroll-behavior: smooth; }
 
+/* ---- blue scrollbar ---- */
+html {
+  scrollbar-width: thin;                 /* Firefox */
+  scrollbar-color: #2f9bff #05070f;      /* thumb / track */
+}
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: #05070f; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6cc4ff, #1357d6);
+  border-radius: 8px;
+  border: 2px solid #05070f;
+  box-shadow: 0 0 10px rgba(47, 139, 255, 0.7);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #8ad4ff, #2f9bff);
+}
+::-webkit-scrollbar-corner { background: #05070f; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -61,35 +79,22 @@ body {
   overflow-x: hidden;
 }
 
-/* Ambient page backdrop: deep navy with faint vignette + grid.
-   Cheap (CSS only); the live WebGL sits only behind the hero. */
+/* The animated circuit board (CircuitBackground.astro) is the page backdrop.
+   A faint top-down darkening keeps the nav/hero text legible over it. */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background:
-    radial-gradient(120% 80% at 50% -10%, rgba(14, 50, 110, 0.55), transparent 60%),
-    radial-gradient(100% 60% at 50% 110%, rgba(10, 40, 95, 0.35), transparent 65%),
-    var(--bg);
-}
-body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.35;
-  background-image:
-    linear-gradient(rgba(47, 139, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(47, 139, 255, 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  -webkit-mask-image: radial-gradient(130% 100% at 50% 0%, #000 35%, transparent 80%);
-          mask-image: radial-gradient(130% 100% at 50% 0%, #000 35%, transparent 80%);
+  background: linear-gradient(180deg, rgba(2, 4, 12, 0.55) 0%, rgba(2, 4, 12, 0.15) 30%, rgba(2, 4, 12, 0.35) 100%);
 }
 
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
+
+/* keep anchor-linked sections clear of the sticky nav */
+section[id], header[id] { scroll-margin-top: 70px; }
 
 .container {
   width: 100%;

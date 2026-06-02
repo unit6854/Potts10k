@@ -26,31 +26,31 @@
   "featured": {
     "heading": "FEATURED VIDEOS",
     "viewAllLabel": "VIEW ALL",
-    "viewAllUrl": "#videos",
+    "viewAllUrl": "https://www.tiktok.com/@potts_10k",
     "items": [
       {
-        "thumbnail": "/images/featured-1.webp",
-        "title": "ELDEN RING",
-        "subtitle": "Shadow of the Erdtree — Full Gameplay Walkthrough",
-        "duration": "45:32",
-        "platform": "twitch",
-        "url": "https://twitch.tv/potts_10k"
+        "thumbnail": "",
+        "title": "",
+        "subtitle": "Elden Ring: Nightreign",
+        "duration": "",
+        "platform": "tiktok",
+        "url": "https://www.tiktok.com/@potts_10k/video/7581973532410744094"
       },
       {
-        "thumbnail": "/images/featured-2.webp",
-        "title": "CALL OF DUTY: WARZONE",
-        "subtitle": "Insane Win!",
-        "duration": "28:14",
-        "platform": "youtube",
-        "url": "https://youtube.com/@potts_10k"
+        "thumbnail": "",
+        "title": "",
+        "subtitle": "Marvel Rivals",
+        "duration": "",
+        "platform": "tiktok",
+        "url": "https://www.tiktok.com/@potts_10k/video/7558908332451302686"
       },
       {
-        "thumbnail": "/images/featured-3.webp",
-        "title": "FINAL FANTASY VII",
-        "subtitle": "Rebirth — Part 12",
-        "duration": "32:09",
-        "platform": "twitch",
-        "url": "https://twitch.tv/potts_10k"
+        "thumbnail": "",
+        "title": "",
+        "subtitle": "Elden Ring: Nightreign",
+        "duration": "",
+        "platform": "tiktok",
+        "url": "https://www.tiktok.com/@potts_10k/video/7644313873683729694"
       }
     ]
   },
@@ -59,12 +59,25 @@
     "viewAllLabel": "VIEW ALL",
     "viewAllUrl": "https://www.tiktok.com/@potts_10k",
     "items": [
-      { "thumbnail": "/images/short-1.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "INSANE 1v4 CLUTCH!", "views": "1.2M" },
-      { "thumbnail": "/images/short-2.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "FUNNIEST MOMENT", "views": "850K" },
-      { "thumbnail": "/images/short-3.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "PERFECT TIMING", "views": "2.1M" },
-      { "thumbnail": "/images/short-4.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "CAN'T BELIEVE THIS...", "views": "1.5M" },
-      { "thumbnail": "/images/short-5.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "UNREAL COMEBACK!", "views": "930K" },
-      { "thumbnail": "/images/short-6.webp", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k", "title": "VICTORY ROYALE!", "views": "1.7M" }
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7581973532410744094", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7573809330764516639", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7644313873683729694", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7605387390567402782", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7581988236575214878", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7573910125103172894", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7570019157173980446", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7612850323912199455", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7641257167089208606", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7573827650062437662", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7586042898085465375", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7578331728390016287", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7645158135782526239", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7573776062593633566", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7573417245016100127", "game": "Elden Ring: Nightreign", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7558908332451302686", "game": "Marvel Rivals", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7645051092333612318", "game": "Marvel Rivals", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7559296605090794783", "game": "Marvel Rivals", "title": "" },
+      { "thumbnail": "", "previewClip": "", "tiktokUrl": "https://www.tiktok.com/@potts_10k/video/7566286765548490014", "game": "Marvel Rivals", "title": "" }
     ]
   },
   "about": {

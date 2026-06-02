@@ -1,7 +1,15 @@
 ---
 import Icon from './Icon.astro';
+import { resolveThumb, resolveTitle } from '../lib/tiktok.mjs';
 const { data } = Astro.props;
 const { heading, viewAllLabel, viewAllUrl, items = [] } = data;
+
+// For TikTok-sourced items, pull the real poster/title from the build cache.
+const videos = items.map((v: any) => ({
+  ...v,
+  thumb: resolveThumb(v.thumbnail, v.platform === 'tiktok' ? v.url : ''),
+  displayTitle: v.title || (v.platform === 'tiktok' ? resolveTitle('', v.url, v.subtitle) : v.title),
+}));
 ---
 <section id="videos" class="panel block">
   <div class="head">
@@ -10,16 +18,16 @@ const { heading, viewAllLabel, viewAllUrl, items = [] } = data;
   </div>
 
   <div class="grid">
-    {items.map((v: any) => (
+    {videos.map((v: any) => (
       <a class="card" href={v.url} target="_blank" rel="noopener">
         <div class="thumb">
-          <img src={v.thumbnail} alt={v.title} loading="lazy" />
+          <img src={v.thumb} alt={v.displayTitle} loading="lazy" />
           <span class={`plat ${v.platform}`}><Icon name={v.platform} size={13} /></span>
           {v.duration && <span class="dur">{v.duration}</span>}
           <span class="playover"><Icon name="play" size={22} /></span>
         </div>
         <div class="cap">
-          <strong class="clamp-1">{v.title}</strong>
+          <strong class="clamp-1">{v.displayTitle}</strong>
           {v.subtitle && <span class="sub clamp-1">{v.subtitle}</span>}
         </div>
       </a>

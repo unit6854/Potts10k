@@ -1,27 +1,21 @@
 ---
 import Icon from './Icon.astro';
+import { resolveThumb, resolveTitle } from '../lib/tiktok.mjs';
 const { data } = Astro.props;
 const { heading, viewAllLabel, viewAllUrl, items = [] } = data;
 
-// Build-time fallback: if an item has no thumbnail uploaded but has a TikTok
-// URL, pull the official poster via TikTok's oEmbed endpoint. Failures fall
-// back to a bundled placeholder so the build never breaks.
-async function resolveThumb(item: any): Promise<string> {
-  if (item.thumbnail) return item.thumbnail;
-  if (item.tiktokUrl) {
-    try {
-      const r = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(item.tiktokUrl)}`);
-      if (r.ok) {
-        const j = await r.json();
-        if (j.thumbnail_url) return j.thumbnail_url;
-      }
-    } catch { /* ignore — use placeholder */ }
-  }
-  return '/images/short-1.webp';
-}
-const resolved = await Promise.all(
-  items.map(async (it: any) => ({ ...it, thumb: await resolveThumb(it) }))
-);
+// Resolve thumbnails/titles from the build-time TikTok cache.
+const clips = items.map((it: any) => ({
+  ...it,
+  thumb: resolveThumb(it.thumbnail, it.tiktokUrl),
+  displayTitle: resolveTitle(it.title, it.tiktokUrl, it.game || 'Clip'),
+  game: it.game || '',
+}));
+
+// Build the filter tabs from the games present (preserve first-seen order).
+const games: string[] = [];
+for (const c of clips) if (c.game && !games.includes(c.game)) games.push(c.game);
+const tabs = ['All', ...games];
 ---
 <section id="shorts" class="panel block">
   <div class="head">
@@ -29,21 +23,29 @@ const resolved = await Promise.all(
     <a class="view-all" href={viewAllUrl} target="_blank" rel="noopener">{viewAllLabel}</a>
   </div>
 
+  {tabs.length > 1 && (
+    <div class="tabs" role="tablist">
+      {tabs.map((t, i) => (
+        <button class={`tab ${i === 0 ? 'active' : ''}`} data-filter={t === 'All' ? '' : t} type="button">{t}</button>
+      ))}
+    </div>
+  )}
+
   <div class="reel">
-    {resolved.map((v: any) => (
-      <a class="short" href={v.tiktokUrl} target="_blank" rel="noopener" data-clip={v.previewClip || ''}>
+    {clips.map((v: any) => (
+      <a class="short" href={v.tiktokUrl} target="_blank" rel="noopener" data-game={v.game} data-clip={v.previewClip || ''}>
         <div class="media">
-          <img class="poster" src={v.thumb} alt={v.title} loading="lazy" />
+          <img class="poster" src={v.thumb} alt={v.displayTitle} loading="lazy" />
           {v.previewClip && (
             <video class="prev" muted loop playsinline preload="none" poster={v.thumb}>
               <source src={v.previewClip} />
             </video>
           )}
           <span class="scan" aria-hidden="true"></span>
-          {v.views && <span class="views"><Icon name="play" size={11} /> {v.views}</span>}
+          {v.game && <span class="tag">{v.game}</span>}
           <span class="tt" aria-hidden="true"><Icon name="tiktok" size={13} /></span>
         </div>
-        <span class="title clamp-1">{v.title}</span>
+        {v.displayTitle && <span class="title clamp-1">{v.displayTitle}</span>}
       </a>
     ))}
   </div>
@@ -53,10 +55,32 @@ const resolved = await Promise.all(
   .block { padding: 16px 18px 20px; }
   .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .tab {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    background: rgba(7, 16, 38, 0.6);
+    border: 1px solid rgba(47, 139, 255, 0.22);
+    padding: 6px 13px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .tab:hover { color: var(--accent-bright); border-color: rgba(108, 196, 255, 0.5); }
+  .tab.active {
+    color: #eaf6ff;
+    background: linear-gradient(180deg, rgba(47, 139, 255, 0.35), rgba(12, 60, 160, 0.25));
+    border-color: rgba(108, 196, 255, 0.7);
+    box-shadow: 0 0 16px rgba(47, 139, 255, 0.4);
+  }
+
   .reel { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
 
-  .short { display: block; transition: transform 0.18s; }
+  .short { display: block; transition: transform 0.18s, opacity 0.25s; }
   .short:hover { transform: translateY(-4px); }
+  .short.hidden { display: none; }
 
   .media {
     position: relative;
@@ -65,34 +89,30 @@ const resolved = await Promise.all(
     overflow: hidden;
     border: 1px solid rgba(108, 196, 255, 0.3);
     box-shadow: 0 0 16px rgba(10, 40, 100, 0.3);
+    background: #04101f;
   }
-  .poster, .prev {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-  }
+  .poster, .prev { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .poster { transition: transform 0.5s, filter 0.3s; }
   .prev { opacity: 0; transition: opacity 0.25s; }
-  .short:hover .poster { transform: scale(1.08); filter: brightness(1.05); }
+  .short:hover .poster { transform: scale(1.08); filter: brightness(1.06); }
   .short.playing .prev { opacity: 1; }
 
-  /* magical scan sweep on hover (poster-only fallback + always-on flourish) */
   .scan {
-    position: absolute; inset: 0;
-    pointer-events: none;
+    position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(115deg, transparent 40%, rgba(120, 200, 255, 0.28) 50%, transparent 60%);
     transform: translateX(-120%);
   }
   .short:hover .scan { animation: sweep 0.9s ease-in-out; }
   @keyframes sweep { to { transform: translateX(120%); } }
 
-  .views {
+  .tag {
     position: absolute; left: 7px; top: 7px;
-    display: inline-flex; align-items: center; gap: 3px;
-    font-size: 0.66rem; font-weight: 700;
-    padding: 2px 6px; border-radius: 5px;
+    max-width: calc(100% - 38px);
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em;
+    padding: 3px 7px; border-radius: 5px;
     background: rgba(4, 10, 26, 0.82);
-    color: #d6ecff;
+    color: #bfe0ff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .tt {
     position: absolute; right: 7px; bottom: 7px;
@@ -102,11 +122,8 @@ const resolved = await Promise.all(
     color: var(--accent-bright);
   }
   .title {
-    display: block;
-    margin-top: 8px;
-    font-family: var(--font-display);
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
+    display: block; margin-top: 8px;
+    font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.03em;
     color: var(--text);
   }
 
@@ -115,18 +132,27 @@ const resolved = await Promise.all(
 </style>
 
 <script>
-  // Hover → play the muted preview clip (only if one was uploaded).
-  document.querySelectorAll<HTMLElement>('.short').forEach((el) => {
-    const vid = el.querySelector<HTMLVideoElement>('.prev');
-    if (!vid) return;
-    el.addEventListener('mouseenter', () => {
-      el.classList.add('playing');
-      vid.play().catch(() => {});
+  // Game filter tabs
+  document.querySelectorAll<HTMLElement>('#shorts').forEach((section) => {
+    const tabs = section.querySelectorAll<HTMLButtonElement>('.tab');
+    const cards = section.querySelectorAll<HTMLElement>('.short');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.dataset.filter || '';
+        cards.forEach((c) => {
+          c.classList.toggle('hidden', !!filter && c.dataset.game !== filter);
+        });
+      });
     });
-    el.addEventListener('mouseleave', () => {
-      el.classList.remove('playing');
-      vid.pause();
-      vid.currentTime = 0;
+
+    // Hover → play uploaded preview clip if one exists
+    cards.forEach((el) => {
+      const vid = el.querySelector<HTMLVideoElement>('.prev');
+      if (!vid) return;
+      el.addEventListener('mouseenter', () => { el.classList.add('playing'); vid.play().catch(() => {}); });
+      el.addEventListener('mouseleave', () => { el.classList.remove('playing'); vid.pause(); vid.currentTime = 0; });
     });
   });
 </script>

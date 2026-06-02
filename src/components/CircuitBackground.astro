@@ -1,0 +1,338 @@
+---
+// Site-wide animated background. The circuit board image is stretched to fill
+// the viewport so its HUD frame corners always sit in the screen corners. The
+// animated energy overlay (glow zones, traveling tracers, scan sweep, border
+// glow, electric corner flicker) runs entirely on the GPU via a WebGL fragment
+// shader — far lighter on CPU than the old 2D-canvas version. Rendered at 0.6×
+// internal resolution, FPS-capped, paused on hidden tabs, static for
+// prefers-reduced-motion.
+---
+<div id="circuit-bg" aria-hidden="true">
+  <img id="circuit-bgimg" src="/images/circuit-bg.jpg" alt="" decoding="async" />
+  <canvas id="circuit-gl"></canvas>
+  <canvas id="circuit-fx"></canvas>
+</div>
+
+<style>
+  #circuit-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background: #02040c;
+    overflow: hidden;
+  }
+  #circuit-bgimg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* fill → the frame's corner brackets reach every screen corner */
+    object-fit: fill;
+    filter: brightness(0.92) saturate(1.05);
+  }
+  #circuit-gl,
+  #circuit-fx {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  const canvas = document.getElementById('circuit-gl') as HTMLCanvasElement | null;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (canvas && !reduce) {
+    const gl = canvas.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
+    if (gl) init(gl, canvas);
+  }
+
+  function init(gl: WebGLRenderingContext, canvas: HTMLCanvasElement) {
+    const vert = `attribute vec2 p; void main(){ gl_Position = vec4(p,0.0,1.0); }`;
+    const frag = `
+      precision mediump float;
+      uniform vec2 u_res;
+      uniform float u_time;
+
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+      float hash1(float x){ return fract(sin(x*127.1)*43758.5453); }
+      float noise(vec2 p){
+        vec2 i=floor(p), f=fract(p);
+        vec2 u=f*f*(3.0-2.0*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),
+                   mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);
+      }
+      // slow pulse + occasional dropout = "short-circuit" flicker
+      float flicker(float seed,float t){
+        float base=0.55+0.45*sin(t*1.7+seed*6.2831);
+        float drop=step(0.86, noise(vec2(seed*13.0, floor(t*9.0))));
+        return base*(1.0-0.7*drop);
+      }
+      vec3 zone(vec2 uv,float ar,vec2 c,float r,float seed,float t){
+        vec2 d=uv-c; d.x*=ar;
+        // wide, gentle gaussian → very soft edges
+        float g=exp(-dot(d,d)/(r*r*1.2));
+        return vec3(0.12,0.46,1.0)*g*flicker(seed,t)*0.24;
+      }
+      vec3 corner(vec2 uv,float ar,vec2 c,float seed,float t){
+        vec2 d=uv-c; d.x*=ar;
+        float cd=length(d);
+        // soft radial glow only — no noise speckle (avoids hard edges)
+        float mask=exp(-cd*cd*40.0);
+        return vec3(0.4,0.72,1.0)*mask*flicker(seed,t)*0.32;
+      }
+
+      void main(){
+        vec2 uv=gl_FragCoord.xy/u_res; uv.y=1.0-uv.y;
+        float ar=u_res.x/u_res.y;
+        float t=u_time;
+        vec3 col=vec3(0.0);
+
+        // soft ambient glow over the HUD panel areas (dim, soft edges)
+        col+=zone(uv,ar,vec2(0.22,0.32),0.17,1.0,t);
+        col+=zone(uv,ar,vec2(0.84,0.40),0.15,2.0,t);
+        col+=zone(uv,ar,vec2(0.14,0.72),0.15,4.0,t);
+
+        // very soft, wide border breathing (no defined edge band)
+        float edge=min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
+        col+=vec3(0.10,0.30,0.85)*smoothstep(0.16,0.0,edge)*(0.10+0.05*sin(t*0.6));
+
+        // gentle electric corners (soft glow only)
+        col+=corner(uv,ar,vec2(0.04,0.05),20.0,t);
+        col+=corner(uv,ar,vec2(0.96,0.05),21.0,t);
+        col+=corner(uv,ar,vec2(0.04,0.95),22.0,t);
+        col+=corner(uv,ar,vec2(0.96,0.95),23.0,t);
+
+        // keep alpha well below 1 so glows never form a hard saturated edge
+        float a=clamp(max(col.r,max(col.g,col.b)),0.0,0.7);
+        gl_FragColor=vec4(col*a, a);
+      }
+    `;
+
+    const compile = (type: number, src: string) => {
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src); gl.compileShader(s); return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog); gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'u_res');
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // premultiplied over the image
+
+    const SCALE = 0.6;
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const w = Math.max(1, Math.floor(canvas.clientWidth * dpr * SCALE));
+      const h = Math.max(1, Math.floor(canvas.clientHeight * dpr * SCALE));
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const FPS = 34, frameMs = 1000 / FPS;
+    let last = performance.now(), acc = 0, start = last;
+    function loop(now: number) {
+      requestAnimationFrame(loop);
+      if (document.hidden) { last = now; return; }
+      acc += now - last; last = now;
+      if (acc < frameMs) return;
+      acc = 0;
+      resize();
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.uniform1f(uTime, (now - start) / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    requestAnimationFrame(loop);
+  }
+</script>
+
+<script>
+  // ── 2D FX layer: route tracers + animated pixel blocks + lightning + sparks.
+  // Optimized for low CPU: cached glow sprites + 'lighter' compositing (no
+  // per-draw shadowBlur), 30fps cap, paused on hidden tabs, off for reduced-motion.
+  const fx = document.getElementById('circuit-fx') as HTMLCanvasElement | null;
+  const reduceFx = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (fx && !reduceFx) {
+    const ctx = fx.getContext('2d')!;
+    let W = 0, H = 0;
+    function resize() { W = fx!.width = window.innerWidth; H = fx!.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+    const rndI = (a: number, b: number) => Math.floor(rnd(a, b));
+    const coin = (p = 0.5) => Math.random() < p;
+    const TAU = Math.PI * 2;
+
+    // pre-rendered radial glow sprite (avoids costly shadowBlur)
+    function glowSprite(stops: [number, string][]) {
+      const s = 64, c = document.createElement('canvas'); c.width = c.height = s;
+      const g = c.getContext('2d')!;
+      const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      for (const [o, col] of stops) grd.addColorStop(o, col);
+      g.fillStyle = grd; g.fillRect(0, 0, s, s);
+      return c;
+    }
+    const sprHead = glowSprite([[0, 'rgba(210,245,255,0.95)'], [0.4, 'rgba(120,205,255,0.5)'], [1, 'rgba(60,150,255,0)']]);
+    const sprBlue = glowSprite([[0, 'rgba(90,180,255,0.8)'], [0.45, 'rgba(50,130,255,0.35)'], [1, 'rgba(30,90,220,0)']]);
+    const blit = (spr: HTMLCanvasElement, x: number, y: number, size: number, a: number) => {
+      ctx.globalAlpha = a; ctx.drawImage(spr, x - size / 2, y - size / 2, size, size);
+    };
+
+    // ── tracers: bright dots gliding along circuit routes ──
+    const ROUTES = [
+      [
+        { x: 0.12, y: 0.04 }, { x: 0.30, y: 0.04 }, { x: 0.30, y: 0.10 }, { x: 0.55, y: 0.10 },
+        { x: 0.65, y: 0.04 }, { x: 0.88, y: 0.04 }, { x: 0.88, y: 0.14 }, { x: 0.88, y: 0.40 },
+        { x: 0.70, y: 0.55 }, { x: 0.55, y: 0.55 }, { x: 0.55, y: 0.75 }, { x: 0.50, y: 0.88 },
+        { x: 0.20, y: 0.88 }, { x: 0.10, y: 0.80 }, { x: 0.10, y: 0.55 }, { x: 0.10, y: 0.30 }, { x: 0.10, y: 0.14 },
+      ],
+      [
+        { x: 0.20, y: 0.45 }, { x: 0.30, y: 0.45 }, { x: 0.45, y: 0.45 }, { x: 0.45, y: 0.38 },
+        { x: 0.45, y: 0.30 }, { x: 0.55, y: 0.20 }, { x: 0.65, y: 0.20 }, { x: 0.75, y: 0.30 },
+        { x: 0.85, y: 0.30 }, { x: 0.85, y: 0.45 }, { x: 0.85, y: 0.60 }, { x: 0.75, y: 0.68 },
+        { x: 0.65, y: 0.68 }, { x: 0.55, y: 0.60 }, { x: 0.45, y: 0.60 }, { x: 0.35, y: 0.60 }, { x: 0.25, y: 0.55 }, { x: 0.20, y: 0.45 },
+      ],
+      // a third, shorter route for extra activity
+      [
+        { x: 0.50, y: 0.06 }, { x: 0.50, y: 0.20 }, { x: 0.40, y: 0.30 }, { x: 0.40, y: 0.48 },
+        { x: 0.30, y: 0.58 }, { x: 0.30, y: 0.80 }, { x: 0.45, y: 0.92 }, { x: 0.70, y: 0.92 }, { x: 0.80, y: 0.82 },
+      ],
+    ];
+    class Tracer {
+      route: any; t: number; speed: number; tailLen = 0.05;
+      constructor(route: any, startT = 0) { this.route = route; this.t = startT; this.speed = 0.00045 + rnd(0, 0.0002); }
+      update() { this.t = (this.t + this.speed) % 1; }
+      posAt(f: number) {
+        f = ((f % 1) + 1) % 1;
+        const r = this.route, total = r.length - 1, ft = f * total;
+        const idx = Math.min(Math.floor(ft), total - 1), frac = ft - idx;
+        const a = r[idx], b = r[(idx + 1) % r.length];
+        return { x: (a.x + (b.x - a.x) * frac) * W, y: (a.y + (b.y - a.y) * frac) * H };
+      }
+      draw() {
+        const steps = 22;
+        for (let i = steps; i >= 1; i--) {
+          const p = this.posAt(this.t - (i / steps) * this.tailLen);
+          const frac = i / steps, al = (1 - frac) * (1 - frac) * 0.8;
+          blit(i < steps * 0.2 ? sprHead : sprBlue, p.x, p.y, 11 * (1 - frac * 0.55), al);
+        }
+        const h = this.posAt(this.t);
+        blit(sprHead, h.x, h.y, 18, 1);
+      }
+    }
+    const tracers = [new Tracer(ROUTES[0], 0.0), new Tracer(ROUTES[1], 0.5), new Tracer(ROUTES[2], 0.25)];
+
+    // ── animated pixel data-blocks ──
+    function makeBlock(cols: number, rows: number, prob: number) {
+      const cells = [];
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
+        if (coin(prob)) cells.push({ c, r, phase: rnd(0, TAU), speed: rnd(0.6, 2.2), baseAlpha: rnd(0.12, 0.7), bright: coin(0.18) });
+      return cells;
+    }
+    const BLOCKS = [
+      { ox: 0.08, oy: 0.54, pw: 18, ph: 8, gap: 3, cells: makeBlock(10, 5, 0.65) },
+      { ox: 0.08, oy: 0.67, pw: 14, ph: 6, gap: 2, cells: makeBlock(8, 3, 0.5) },
+      { ox: 0.84, oy: 0.72, pw: 16, ph: 6, gap: 3, cells: makeBlock(6, 2, 0.6) },
+      { ox: 0.84, oy: 0.80, pw: 12, ph: 5, gap: 2, cells: makeBlock(5, 2, 0.5) },
+    ];
+    function drawBlocks(t: number) {
+      for (const blk of BLOCKS) {
+        const ox = blk.ox * W, oy = blk.oy * H;
+        for (const cell of blk.cells) {
+          const f = 0.55 + 0.45 * Math.sin(t * cell.speed + cell.phase + cell.c * 0.7 + cell.r * 1.3);
+          const al = cell.baseAlpha * f;
+          const x = ox + cell.c * (blk.pw + blk.gap), y = oy + cell.r * (blk.ph + blk.gap);
+          if (cell.bright) blit(sprBlue, x + blk.pw / 2, y + blk.ph / 2, 24, al * 0.5);
+          ctx.globalAlpha = al;
+          ctx.fillStyle = cell.bright ? 'rgba(120,200,255,1)' : 'rgba(45,110,225,1)';
+          ctx.fillRect(x, y, blk.pw, blk.ph);
+        }
+      }
+    }
+
+    // ── lightning bolts (the electric crackle) ──
+    const ZONES = [{ cx: 0.04, cy: 0.84 }, { cx: 0.96, cy: 0.80 }, { cx: 0.06, cy: 0.20 }, { cx: 0.94, cy: 0.52 }];
+    class Bolt {
+      zone: any; waiting = true; delay = rnd(6, 60); segs: any[] = []; life = 0; maxLife = 0; alpha = 1;
+      constructor(zone: any) { this.zone = zone; }
+      gen() {
+        const z = this.zone, ox = z.cx * W, oy = z.cy * H, spread = rnd(40, 130), branches = rndI(2, 5);
+        this.segs = [];
+        for (let b = 0; b < branches; b++) {
+          const angle = rnd(-Math.PI, Math.PI), len = rnd(30, spread); let x = ox, y = oy;
+          const pts = [{ x, y }], steps = rndI(5, 11);
+          for (let s = 0; s < steps; s++) {
+            x += Math.cos(angle + s * 0.5) * (len / steps) + rnd(-14, 14);
+            y += Math.sin(angle + s * 0.5) * (len / steps) + rnd(-16, 16);
+            pts.push({ x, y });
+          }
+          this.segs.push(pts);
+        }
+      }
+      update() {
+        if (this.waiting) { if (--this.delay <= 0) { this.waiting = false; this.life = 0; this.maxLife = rnd(6, 18); this.alpha = rnd(0.6, 1); this.gen(); } return; }
+        if (++this.life > this.maxLife) { this.waiting = true; this.delay = rnd(20, 150); }
+      }
+      draw() {
+        if (this.waiting) return;
+        const fade = this.life / this.maxLife, env = fade < 0.25 ? fade / 0.25 : 1 - (fade - 0.25) / 0.75, al = this.alpha * env;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (const pts of this.segs) {
+          ctx.strokeStyle = `rgba(70,160,255,${al * 0.5})`; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
+          ctx.strokeStyle = `rgba(210,242,255,${al})`; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y); ctx.stroke();
+        }
+        blit(sprBlue, this.zone.cx * W, this.zone.cy * H, 90 * env, al * 0.5);
+      }
+    }
+    const bolts = ZONES.map((z) => new Bolt(z));
+
+    // ── sparks ──
+    class Spark {
+      x = 0; y = 0; vx = 0; vy = 0; life = 0; maxL = 0; size = 0;
+      constructor() { this.reset(true); }
+      reset(rand = false) {
+        const z = ZONES[rndI(0, ZONES.length)];
+        this.x = z.cx * W + rnd(-30, 30); this.y = z.cy * H + rnd(-20, 20);
+        this.vx = rnd(-0.6, 0.6); this.vy = rnd(-1.6, -0.3);
+        this.life = rand ? Math.random() * 2 : 0; this.maxL = rnd(1.0, 2.6); this.size = rnd(4, 9);
+      }
+      update(dt: number) { this.life += dt; this.x += this.vx; this.y += this.vy; this.vy *= 0.99; if (this.life > this.maxL) this.reset(); }
+      draw() { blit(sprHead, this.x, this.y, this.size, Math.max(0, 1 - this.life / this.maxL) * 0.7); }
+    }
+    const sparks = Array.from({ length: 22 }, () => new Spark());
+
+    const FPS = 30, frameMs = 1000 / FPS;
+    let last = performance.now(), acc = 0, start = last;
+    function loop(now: number) {
+      requestAnimationFrame(loop);
+      if (document.hidden) { last = now; return; }
+      acc += now - last; last = now;
+      if (acc < frameMs) return;
+      const dt = Math.min(acc / 1000, 0.05); acc = 0;
+      const t = (now - start) / 1000;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      drawBlocks(t);
+      for (const tr of tracers) { tr.update(); tr.draw(); }
+      for (const b of bolts) { b.update(); b.draw(); }
+      for (const s of sparks) { s.update(dt); s.draw(); }
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(loop);
+  }
+</script>

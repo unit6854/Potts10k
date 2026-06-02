@@ -1,14 +1,13 @@
 ---
-import HeroBackground from './HeroBackground.astro';
 import TopBar from './TopBar.astro';
-const { topbar, logo = '/images/hero-logo.webp' } = Astro.props;
+const { topbar, logo = '/images/hero-logo-trans.webp' } = Astro.props;
 ---
 <header id="home" class="hero">
-  <HeroBackground />
   <TopBar {...topbar} />
 
   <div class="hero-logo-wrap">
-    <img class="hero-logo" src={logo} alt="POTTS_10K" width="1100" height="1100" fetchpriority="high" />
+    <span class="hero-glow" aria-hidden="true"></span>
+    <img class="hero-logo" src={logo} alt="POTTS_10K" width="990" height="956" fetchpriority="high" />
   </div>
 
   <!-- decorative downward chevron divider -->
@@ -33,19 +32,82 @@ const { topbar, logo = '/images/hero-logo.webp' } = Astro.props;
     height: 100%;
     min-height: inherit;
     padding: 56px 16px 26px;
+    /* nudge the logo + its glow up */
+    transform: translateY(-70px);
   }
+
+  /* The logo: transparent art sized to ~1/3 of the page, lit by a pulsing,
+     flickering electric-blue glow (drop-shadow), gently floating. */
   .hero-logo {
-    width: min(82%, 760px);
+    position: relative;
+    z-index: 2;
+    grid-area: 1 / 1;
+    width: clamp(300px, 33.333vw, 560px);
     height: auto;
-    /* drop the black backing of the logo art so it fuses with the shader */
-    mix-blend-mode: screen;
-    filter: drop-shadow(0 0 38px rgba(30, 111, 255, 0.55));
-    animation: hero-float 7s ease-in-out infinite;
+    will-change: transform, filter, opacity;
+    animation:
+      hero-float 7s ease-in-out infinite,
+      logo-pulse 3.2s ease-in-out infinite,
+      logo-flicker 5.5s steps(1, end) infinite;
   }
+
+  /* soft radial energy bloom behind the logo — dim, very gradual fade so it
+     has no perceptible edge */
+  .hero-glow {
+    grid-area: 1 / 1;
+    z-index: 1;
+    width: clamp(320px, 42vw, 600px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(60, 240, 255, 0.24) 0%,
+      rgba(47, 139, 255, 0.16) 28%,
+      rgba(20, 90, 200, 0.07) 50%,
+      rgba(20, 90, 200, 0.02) 66%,
+      transparent 80%
+    );
+    filter: blur(16px);
+    pointer-events: none;
+    animation: glow-pulse 3.6s ease-in-out infinite, glow-hue 7.2s ease-in-out infinite;
+  }
+
   @keyframes hero-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  /* pulse shifts the halo between deep blue and bright cyan — toned down ~50% */
+  @keyframes logo-pulse {
+    0%, 100% {
+      filter:
+        drop-shadow(0 0 10px rgba(47, 139, 255, 0.32))
+        drop-shadow(0 0 26px rgba(30, 111, 255, 0.22));
+    }
+    50% {
+      filter:
+        drop-shadow(0 0 16px rgba(60, 240, 255, 0.5))
+        drop-shadow(0 0 40px rgba(47, 139, 255, 0.35))
+        drop-shadow(0 0 72px rgba(40, 180, 255, 0.2));
+    }
+  }
+  /* slowly rotate the bloom's hue across the blue↔cyan range */
+  @keyframes glow-hue {
+    0%, 100% { filter: blur(16px) hue-rotate(0deg); }
+    50% { filter: blur(16px) hue-rotate(-22deg); }
+  }
+  /* quick irregular flicker = electric feel */
+  @keyframes logo-flicker {
+    0%, 38%, 44%, 52%, 100% { opacity: 1; }
+    40% { opacity: 0.82; }
+    42% { opacity: 1; }
+    48% { opacity: 0.9; }
+    50% { opacity: 1; }
+  }
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.95); }
+    50% { opacity: 0.8; transform: scale(1.06); }
+  }
+
   .hero-divider {
     position: absolute;
     z-index: 2;
@@ -55,7 +117,10 @@ const { topbar, logo = '/images/hero-logo.webp' } = Astro.props;
     width: 60px;
     filter: drop-shadow(0 0 8px rgba(47, 139, 255, 0.8));
   }
+
   @media (prefers-reduced-motion: reduce) {
-    .hero-logo { animation: none; }
+    .hero-logo, .hero-glow { animation: none; }
+    .hero-logo { filter: drop-shadow(0 0 16px rgba(47, 139, 255, 0.35)); }
+    .hero-glow { opacity: 0.6; }
   }
 </style>

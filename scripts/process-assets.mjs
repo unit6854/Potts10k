@@ -14,6 +14,12 @@ await sharp('Logo.png')
   .webp({ quality: 90 })
   .toFile(`${OUT}/hero-logo.webp`);
 
+// Transparent hero logo (no baked glow) — the live hero. Glow is added in CSS.
+await sharp('logo trans no glow.png')
+  .resize(1024, 1024, { fit: 'inside' })
+  .webp({ quality: 92, alphaQuality: 100 })
+  .toFile(`${OUT}/hero-logo-trans.webp`);
+
 // Transparent character cutout (alternate/parallax layer if needed)
 await sharp('Full body character.png')
   .resize(1400, null, { fit: 'inside' })

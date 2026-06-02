@@ -4,8 +4,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "tiktok": "node scripts/fetch-tiktok.mjs",
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node scripts/fetch-tiktok.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

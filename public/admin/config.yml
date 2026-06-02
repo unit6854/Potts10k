@@ -68,9 +68,9 @@ collections:
                 name: "items"
                 widget: "list"
                 fields:
-                  - { label: "Thumbnail", name: "thumbnail", widget: "image" }
-                  - { label: "Title", name: "title", widget: "string" }
-                  - { label: "Subtitle", name: "subtitle", widget: "string", required: false }
+                  - { label: "Thumbnail (blank = auto from TikTok link)", name: "thumbnail", widget: "image", required: false }
+                  - { label: "Title (blank = auto from TikTok)", name: "title", widget: "string", required: false }
+                  - { label: "Subtitle / game", name: "subtitle", widget: "string", required: false }
                   - { label: "Duration", name: "duration", widget: "string", required: false }
                   - label: "Platform"
                     name: "platform"
@@ -89,9 +89,11 @@ collections:
               - label: "Clips"
                 name: "items"
                 widget: "list"
-                summary: "{{fields.title}} — {{fields.views}}"
+                summary: "{{fields.game}}: {{fields.tiktokUrl}}"
                 fields:
-                  - { label: "Thumbnail (leave blank to auto-fetch from TikTok)", name: "thumbnail", widget: "image", required: false }
+                  - { label: "TikTok link", name: "tiktokUrl", widget: "string", hint: "Paste the full https://www.tiktok.com/@potts_10k/video/... link" }
+                  - { label: "Game", name: "game", widget: "string", hint: "Used for the filter tabs (e.g. Marvel Rivals)" }
+                  - { label: "Thumbnail (blank = auto-fetch from TikTok)", name: "thumbnail", widget: "image", required: false }
                   - label: "Preview clip (optional, plays on hover)"
                     name: "previewClip"
                     widget: "file"
@@ -100,9 +102,7 @@ collections:
                       config:
                         # allow short video files for the hover preview
                         allowed_extensions: ["mp4", "webm", "mov"]
-                  - { label: "TikTok link", name: "tiktokUrl", widget: "string" }
-                  - { label: "Title", name: "title", widget: "string" }
-                  - { label: "Views", name: "views", widget: "string", required: false }
+                  - { label: "Title (blank = auto from TikTok)", name: "title", widget: "string", required: false }
 
           # ---------------- about ----------------
           - label: "About Me"
