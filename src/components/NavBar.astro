@@ -3,11 +3,31 @@ const { items = [] } = Astro.props;
 ---
 <nav class="navwrap">
   <div class="nav container">
+    <!-- glowing HUD frame with a traveling energy line -->
+    <svg class="nav-frame" viewBox="0 0 1180 60" preserveAspectRatio="none" aria-hidden="true">
+      <path class="frame-fill" d="M30 4 L1150 4 L1176 30 L1150 56 L30 56 L4 30 Z" />
+      <path class="frame-base" d="M30 4 L1150 4 L1176 30 L1150 56 L30 56 L4 30 Z" pathLength="100" />
+      <path class="frame-energy" d="M30 4 L1150 4 L1176 30 L1150 56 L30 56 L4 30 Z" pathLength="100" />
+      <!-- top notch ticks -->
+      <g class="ticks">
+        <line x1="360" y1="4" x2="380" y2="4" /><line x1="388" y1="4" x2="408" y2="4" />
+        <line x1="772" y1="4" x2="792" y2="4" /><line x1="800" y1="4" x2="820" y2="4" />
+      </g>
+    </svg>
+
+    <!-- drifting particles -->
+    <span class="nav-particles" aria-hidden="true">
+      <i style="left:18%;animation-delay:0s"></i>
+      <i style="left:34%;animation-delay:1.1s"></i>
+      <i style="left:50%;animation-delay:2.3s"></i>
+      <i style="left:63%;animation-delay:0.6s"></i>
+      <i style="left:78%;animation-delay:1.7s"></i>
+      <i style="left:90%;animation-delay:3.0s"></i>
+    </span>
+
     <ul>
       {items.map((it: any, i: number) => (
-        <li>
-          <a href={it.href} class={i === 0 ? 'active' : ''}>{it.label}</a>
-        </li>
+        <li><a href={it.href} class={i === 0 ? 'active' : ''}>{it.label}</a></li>
       ))}
     </ul>
   </div>
@@ -18,32 +38,82 @@ const { items = [] } = Astro.props;
     position: sticky;
     top: 0;
     z-index: 20;
-    padding: 10px 0 6px;
-    background: linear-gradient(180deg, rgba(2, 5, 14, 0.92), rgba(2, 5, 14, 0.55) 70%, transparent);
+    padding: 12px 0 8px;
+    background: linear-gradient(180deg, rgba(2, 5, 14, 0.92), rgba(2, 5, 14, 0.5) 70%, transparent);
     backdrop-filter: blur(6px);
   }
   .nav {
     position: relative;
+    min-height: 58px;
     display: flex;
+    align-items: center;
     justify-content: center;
-    background:
-      linear-gradient(rgba(6, 14, 34, 0.9), rgba(6, 14, 34, 0.9)) padding-box,
-      var(--border-grad) border-box;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    box-shadow: 0 0 22px rgba(20, 70, 160, 0.2), inset 0 0 24px rgba(8, 30, 70, 0.5);
-    /* angled ends + subtle center dip */
-    clip-path: polygon(
-      0 22%, 3% 0, 44% 0, 47% 26%, 53% 26%, 56% 0, 97% 0, 100% 22%,
-      100% 100%, 0 100%
-    );
+    padding: 0 30px;
   }
+
+  /* ---- HUD frame ---- */
+  .nav-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: visible;
+  }
+  .frame-fill { fill: rgba(7, 16, 38, 0.82); }
+  .frame-base {
+    fill: none;
+    stroke: rgba(90, 175, 255, 0.55);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 4px rgba(47, 139, 255, 0.55));
+  }
+  .frame-energy {
+    fill: none;
+    stroke: #b9e6ff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    /* two bright segments chasing around the border */
+    stroke-dasharray: 7 43;
+    filter: drop-shadow(0 0 6px rgba(120, 205, 255, 0.95));
+    animation: nav-dash 4.5s linear infinite;
+  }
+  .ticks line {
+    stroke: rgba(120, 200, 255, 0.5);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  @keyframes nav-dash { to { stroke-dashoffset: -100; } }
+
+  /* ---- particles ---- */
+  .nav-particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .nav-particles i {
+    position: absolute;
+    bottom: 6px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #9fd8ff;
+    box-shadow: 0 0 6px 1px rgba(108, 196, 255, 0.9);
+    opacity: 0;
+    animation: particle-rise 5s ease-in-out infinite;
+  }
+  @keyframes particle-rise {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    20% { opacity: 0.9; }
+    80% { opacity: 0.6; }
+    100% { transform: translateY(-42px) scale(1); opacity: 0; }
+  }
+
+  /* ---- links ---- */
   ul {
     display: flex;
     gap: clamp(6px, 2.4vw, 34px);
     list-style: none;
     margin: 0;
-    padding: 14px 22px 12px;
+    padding: 0;
+    z-index: 3;
   }
   a {
     position: relative;
@@ -69,8 +139,13 @@ const { items = [] } = Astro.props;
     box-shadow: 0 0 10px 2px rgba(47, 139, 255, 0.9);
   }
 
-  @media (max-width: 720px) {
-    .nav { clip-path: none; }
-    ul { flex-wrap: wrap; justify-content: center; gap: 10px 18px; padding: 12px; }
+  @media (max-width: 760px) {
+    .nav { padding: 8px 16px; min-height: 0; }
+    .nav-particles { display: none; }
+    ul { flex-wrap: wrap; justify-content: center; gap: 8px 16px; padding: 8px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .frame-energy, .nav-particles i { animation: none; }
+    .frame-energy { stroke-dasharray: none; opacity: 0.5; }
   }
 </style>
