@@ -33,9 +33,55 @@
   }
 
   function initGL(gl: WebGLRenderingContext, canvas: HTMLCanvasElement) {
+    const mobile = window.matchMedia('(pointer: coarse)').matches;
     const vert = `
       attribute vec2 p;
       void main() { gl_Position = vec4(p, 0.0, 1.0); }
+    `;
+    // Mobile uses 3-octave fbm (no domain warp) to cut shader cost in half
+    const fragMobile = `
+      precision mediump float;
+      uniform vec2 u_res;
+      uniform float u_time;
+
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p){
+        vec2 i = floor(p), f = fract(p);
+        vec2 u = f*f*(3.0-2.0*f);
+        return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x),
+                   mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y);
+      }
+      float fbm(vec2 p){
+        float v = 0.0, a = 0.5;
+        for(int i=0;i<3;i++){ v += a*noise(p); p *= 2.02; a *= 0.5; }
+        return v;
+      }
+
+      void main(){
+        vec2 uv = gl_FragCoord.xy / u_res.xy;
+        vec2 p = uv;
+        p.x *= u_res.x / u_res.y;
+        float t = u_time * 0.06;
+
+        float f = fbm(p*3.0 + vec2(0.0, t*1.5));
+
+        vec2 c = uv - vec2(0.5, 0.46);
+        c.x *= u_res.x / u_res.y;
+        float core = exp(-dot(c, c) * 5.5);
+
+        vec3 deep   = vec3(0.012, 0.035, 0.10);
+        vec3 mid    = vec3(0.04, 0.22, 0.62);
+        vec3 bright = vec3(0.35, 0.70, 1.0);
+        vec3 col = deep;
+        col = mix(col, mid, smoothstep(0.25, 0.85, f));
+        col += bright * pow(f, 3.0) * 0.6;
+        col += bright * core * 0.9;
+
+        float vig = smoothstep(1.15, 0.25, length(uv - 0.5));
+        col *= vig;
+        float alpha = clamp(0.30 + f*0.5 + core*0.7, 0.0, 1.0);
+        gl_FragColor = vec4(col, alpha);
+      }
     `;
     const frag = `
       precision mediump float;
@@ -113,7 +159,7 @@
     };
     const prog = gl.createProgram()!;
     gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, mobile ? fragMobile : frag));
     gl.linkProgram(prog);
     gl.useProgram(prog);
 
@@ -129,9 +175,9 @@
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    const SCALE = 0.6; // render below display res → cheap, glow hides it
+    const SCALE = mobile ? 0.35 : 0.6;
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.0 : 1.5);
       const w = Math.max(1, Math.floor(canvas.clientWidth * dpr * SCALE));
       const h = Math.max(1, Math.floor(canvas.clientHeight * dpr * SCALE));
       if (canvas.width !== w || canvas.height !== h) {
@@ -148,7 +194,7 @@
     new IntersectionObserver((es) => { visible = es[0].isIntersecting; }, { threshold: 0 }).observe(canvas);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) last = performance.now(); });
 
-    const FPS = 32, frameMs = 1000 / FPS;
+    const FPS = mobile ? 20 : 32, frameMs = 1000 / FPS;
     let last = performance.now(), acc = 0, start = performance.now();
     function loop(now: number) {
       requestAnimationFrame(loop);

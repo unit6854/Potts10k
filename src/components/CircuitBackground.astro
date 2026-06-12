@@ -43,6 +43,7 @@
 <script>
   const canvas = document.getElementById('circuit-gl') as HTMLCanvasElement | null;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = window.matchMedia('(pointer: coarse)').matches;
   if (canvas && !reduce) {
     const gl = canvas.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
     if (gl) init(gl, canvas);
@@ -131,9 +132,9 @@
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // premultiplied over the image
 
-    const SCALE = 0.6;
+    const SCALE = mobile ? 0.35 : 0.6;
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.0 : 1.5);
       const w = Math.max(1, Math.floor(canvas.clientWidth * dpr * SCALE));
       const h = Math.max(1, Math.floor(canvas.clientHeight * dpr * SCALE));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
@@ -141,7 +142,7 @@
     window.addEventListener('resize', resize);
     resize();
 
-    const FPS = 34, frameMs = 1000 / FPS;
+    const FPS = mobile ? 20 : 34, frameMs = 1000 / FPS;
     let last = performance.now(), acc = 0, start = last;
     function loop(now: number) {
       requestAnimationFrame(loop);
@@ -164,7 +165,8 @@
   // per-draw shadowBlur), 30fps cap, paused on hidden tabs, off for reduced-motion.
   const fx = document.getElementById('circuit-fx') as HTMLCanvasElement | null;
   const reduceFx = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (fx && !reduceFx) {
+  const mobileFx = window.matchMedia('(pointer: coarse)').matches;
+  if (fx && !reduceFx && !mobileFx) {
     const ctx = fx.getContext('2d')!;
     let W = 0, H = 0;
     function resize() { W = fx!.width = window.innerWidth; H = fx!.height = window.innerHeight; }
