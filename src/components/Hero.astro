@@ -123,4 +123,21 @@ const { topbar, logo = '/images/hero-logo-trans.webp' } = Astro.props;
     .hero-logo { filter: drop-shadow(0 0 16px rgba(47, 139, 255, 0.35)); }
     .hero-glow { opacity: 0.6; }
   }
+  @media (pointer: coarse) {
+    /* will-change + filter-animating drop-shadows + blur all create separate GPU
+       layers. On iOS this stacks up to a memory crash — strip them on mobile. */
+    .hero-logo {
+      will-change: auto;
+      /* keep only the float; drop-shadow and flicker animate filter/opacity
+         which are the expensive layers — replace with a static glow */
+      animation: hero-float 7s ease-in-out infinite;
+      filter: drop-shadow(0 0 12px rgba(47, 139, 255, 0.4));
+    }
+    .hero-glow {
+      /* blur() forces a compositor layer — replace with plain opacity */
+      filter: none;
+      opacity: 0.55;
+      animation: glow-pulse 3.6s ease-in-out infinite;
+    }
+  }
 </style>

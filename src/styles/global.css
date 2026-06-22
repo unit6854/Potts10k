@@ -201,3 +201,16 @@ section[id], header[id] { scroll-margin-top: 70px; }
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* ---- Mobile: strip GPU-intensive effects that crash iOS Safari ---- */
+/* backdrop-filter on each panel forces iOS to hold a full-page texture
+   per panel — with 6+ panels visible that alone can exhaust GPU memory. */
+@media (pointer: coarse) {
+  .panel {
+    backdrop-filter: none;
+    /* compensate: slightly more opaque so panels stay legible */
+    background:
+      linear-gradient(rgba(8, 17, 40, 0.85), rgba(8, 17, 40, 0.85)) padding-box,
+      var(--border-grad) border-box;
+  }
+}

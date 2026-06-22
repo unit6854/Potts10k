@@ -42,6 +42,10 @@ const { items = [] } = Astro.props;
     background: linear-gradient(180deg, rgba(2, 5, 14, 0.92), rgba(2, 5, 14, 0.5) 70%, transparent);
     backdrop-filter: blur(6px);
   }
+  @media (pointer: coarse) {
+    /* backdrop-filter on sticky nav holds a full-page GPU snapshot — kills iOS */
+    .navwrap { backdrop-filter: none; background: linear-gradient(180deg, rgba(2, 5, 14, 0.97), rgba(2, 5, 14, 0.85) 70%, transparent); }
+  }
   .nav {
     position: relative;
     min-height: 58px;

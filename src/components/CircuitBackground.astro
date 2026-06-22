@@ -34,6 +34,9 @@
   @media (pointer: coarse) {
     /* fill warps the image on mobile — cover looks correct on narrow screens */
     #circuit-bgimg { object-fit: cover; }
+    /* CSS filter on a fixed full-viewport image forces a GPU compositor layer —
+       remove it on mobile to free that memory */
+    #circuit-bgimg { filter: none; }
   }
   #circuit-gl,
   #circuit-fx {
