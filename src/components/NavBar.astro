@@ -45,6 +45,10 @@ const { items = [] } = Astro.props;
   @media (pointer: coarse) {
     /* backdrop-filter on sticky nav holds a full-page GPU snapshot — kills iOS */
     .navwrap { backdrop-filter: none; background: linear-gradient(180deg, rgba(2, 5, 14, 0.97), rgba(2, 5, 14, 0.85) 70%, transparent); }
+    /* animated SVG with filter: drop-shadow forces a compositor-layer repaint
+       on every frame — strip filters on mobile, keep the animation itself */
+    .frame-base { filter: none; }
+    .frame-energy { filter: none; }
   }
   .nav {
     position: relative;

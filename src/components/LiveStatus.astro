@@ -58,6 +58,11 @@ const {
   }
   .screen .glyph { filter: drop-shadow(0 0 16px rgba(150, 90, 255, 0.9)); animation: pulse 2.6s ease-in-out infinite; }
   @keyframes pulse { 50% { transform: scale(1.08); filter: drop-shadow(0 0 26px rgba(150, 90, 255, 1)); } }
+  @media (pointer: coarse) {
+    /* animating filter: drop-shadow forces per-frame compositor repaints on iOS */
+    .screen .glyph { animation: pulse-mobile 2.6s ease-in-out infinite; filter: drop-shadow(0 0 16px rgba(150, 90, 255, 0.9)); }
+    @keyframes pulse-mobile { 50% { transform: scale(1.08); } }
+  }
   .on {
     position: absolute; top: 12px;
     font-family: var(--font-display); font-size: 0.62rem; letter-spacing: 0.16em;
