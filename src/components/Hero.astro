@@ -124,6 +124,14 @@ const { topbar, logo = '/images/hero-logo-trans.webp' } = Astro.props;
     .hero-glow { opacity: 0.6; }
   }
   @media (pointer: coarse) {
+    /* 50px breathing room at top and bottom; cancel the desktop upward nudge */
+    .hero {
+      min-height: auto;
+    }
+    .hero-logo-wrap {
+      padding: 50px 16px 50px;
+      transform: translateY(0);
+    }
     /* will-change + filter-animating drop-shadows + blur all create separate GPU
        layers. On iOS this stacks up to a memory crash — strip them on mobile. */
     .hero-logo {
